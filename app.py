@@ -5,9 +5,13 @@ import datetime
 app = Flask(__name__)
 
 def log_query(query):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ip = request.remote_addr or "unknown"
+    suspicious = "⚠️" if any(x in query.lower() for x in ["--", "' or", "union", "sqlite_master", "flags"]) else ""
+    log_line = f"[{timestamp}] {ip} → {query} {suspicious}\n"
     with open("logs.txt", "a") as f:
-        f.write(f"[{datetime.datetime.now()}] {request.remote_addr} → {query}\n")
-
+        f.write(log_line)
+        
 @app.route('/')
 def index():
     return render_template('index.html')
