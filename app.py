@@ -71,21 +71,19 @@ def login():
 
     return render_template("login.html")
 
-@app.route('/profile')
+@app.route("/profile")
 def profile():
-    session_id = request.cookies.get("session_id", "")
-    query = f"SELECT * FROM users WHERE username = '{session_id}'"
-    log_query(query)
-    conn = sqlite3.connect('users.db')
+    session_id = request.cookies.get("session_id")
+    conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-    try:
-        cursor.execute(query)
-        rows = cursor.fetchall()
-        result = '<br>'.join(str(row) for row in rows)
-    except Exception as e:
-        result = f"Error: {e}"
+    cursor.execute("SELECT id, username FROM users WHERE id=?", (session_id,))
+    result = cursor.fetchone()
     conn.close()
-    return f"<h3>Session Profile:</h3><p>{result}</p>"
+
+    if result:
+        return render_template("profile.html", username=result[1], session_id=result[0])
+    else:
+        return redirect("/login")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000)
