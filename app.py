@@ -32,28 +32,33 @@ def search():
     conn.close()
     return f"<h3>Results:</h3><p>{result}</p>"
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    if request.method == 'GET':
-        return render_template('login.html')
-    else:
-        username = request.form.get('username', '')
-        password = request.form.get('password', '')
+    if request.method == "POST":
+        username = request.form.get("username", "")
+        password = request.form.get("password", "")
         query = f"SELECT * FROM users WHERE username = '{username}' AND password = '{password}'"
         log_query(query)
-        conn = sqlite3.connect('users.db')
+
+        conn = sqlite3.connect("users.db")
         cursor = conn.cursor()
         try:
             cursor.execute(query)
-            rows = cursor.fetchall()
-            if rows:
-                resp = make_response(f"Welcome, {username}!")
-                resp.set_cookie("session_id", username)
-                return resp
-            else:
-                return "Login failed."
+            result = cursor.fetchone()
         except Exception as e:
-            return f"Error: {e}"
+            result = None
+        conn.close()
+
+        if result:
+            session_id = result[0]
+            resp = make_response(redirect("/profile"))
+            resp.set_cookie("session_id", str(session_id))
+            return resp
+        else:
+            # 👇 This reloads the login page with an error message
+            return render_template("login.html", error="Login failed. Try again.")
+    
+    return render_template("login.html")
 
 @app.route('/profile')
 def profile():
