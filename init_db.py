@@ -12,5 +12,14 @@ c.execute("INSERT INTO users VALUES (2, 'alice', 'password123')")
 c.execute("CREATE TABLE flags (id INTEGER PRIMARY KEY, flag TEXT)")
 c.execute("INSERT INTO flags VALUES (1, 'FLAG{sql_injection_success}')")
 
+# Sessions table for UUID-based session tracking
+c.execute("""
+CREATE TABLE IF NOT EXISTS sessions (
+    uuid TEXT PRIMARY KEY,
+    user_id INTEGER,
+    FOREIGN KEY(user_id) REFERENCES users(id)
+)
+""")
+
 conn.commit()
 conn.close()
