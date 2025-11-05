@@ -9,9 +9,19 @@ def log_query(query):
     ip = request.remote_addr or "unknown"
     suspicious = "⚠️" if any(x in query.lower() for x in ["--", "' or", "union", "sqlite_master", "flags"]) else ""
     log_line = f"[{timestamp}] {ip} → {query} {suspicious}\n"
-    with open("logs.txt", "a") as f:
+    with open("app.log", "a") as f:
         f.write(log_line)
-        
+
+def log_error(error, query=None):
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    ip = request.remote_addr or "unknown"
+    log_line = f"[{timestamp}] {ip} ERROR: {error}"
+    if query:
+        log_line += f" | Query: {query}"
+    log_line += "\n"
+    with open("error.log", "a") as f:
+        f.write(log_line)
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -46,6 +56,7 @@ def login():
             cursor.execute(query)
             result = cursor.fetchone()
         except Exception as e:
+            log_error(str(e), query)
             result = None
         conn.close()
 
@@ -55,9 +66,8 @@ def login():
             resp.set_cookie("session_id", str(session_id))
             return resp
         else:
-            # 👇 This reloads the login page with an error message
             return render_template("login.html", error="Login failed. Try again.")
-    
+
     return render_template("login.html")
 
 @app.route('/profile')
