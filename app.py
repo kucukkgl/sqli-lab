@@ -1,5 +1,4 @@
-from flask import Flask, request, render_template, make_response,redirect
-
+from flask import Flask, request, render_template, make_response, redirect
 import sqlite3
 import datetime
 import uuid
@@ -60,9 +59,8 @@ def login():
         except Exception as e:
             log_error(str(e), query)
             result = None
-        conn.close()
 
-       if result:
+        if result:
             # Generate a UUID for the session
             session_id = str(uuid.uuid4())
             cursor.execute("INSERT INTO sessions (uuid, user_id) VALUES (?, ?)", (session_id, result[0]))
@@ -75,7 +73,7 @@ def login():
         else:
             conn.close()
             return render_template("login.html", error="Login failed. Try again.")
-            
+
     return render_template("login.html")
 
 @app.route("/profile")
