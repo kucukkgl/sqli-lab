@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+</head>
+<body>
+    <h1>Welcome, {{ username }}!</h1>
+    <p>Your session ID is: {{ session_id }}</p>
+
+    {% if error %}
+      <p style="color:red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
