@@ -2,6 +2,7 @@ from flask import Flask, request, render_template, make_response,redirect
 
 import sqlite3
 import datetime
+import uuid
 
 app = Flask(__name__)
 
@@ -61,27 +62,40 @@ def login():
             result = None
         conn.close()
 
-        if result:
-            session_id = result[0]
+       if result:
+            # Generate a UUID for the session
+            session_id = str(uuid.uuid4())
+            cursor.execute("INSERT INTO sessions (uuid, user_id) VALUES (?, ?)", (session_id, result[0]))
+            conn.commit()
+            conn.close()
+
             resp = make_response(redirect("/profile"))
-            resp.set_cookie("session_id", str(session_id))
+            resp.set_cookie("session_id", session_id)
             return resp
         else:
+            conn.close()
             return render_template("login.html", error="Login failed. Try again.")
-
+            
     return render_template("login.html")
 
 @app.route("/profile")
 def profile():
     session_id = request.cookies.get("session_id")
+    if not session_id:
+        return redirect("/login")
+
     conn = sqlite3.connect("users.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, username FROM users WHERE id=?", (session_id,))
+    cursor.execute("""
+        SELECT users.username FROM sessions
+        JOIN users ON sessions.user_id = users.id
+        WHERE sessions.uuid = ?
+    """, (session_id,))
     result = cursor.fetchone()
     conn.close()
 
     if result:
-        return render_template("profile.html", username=result[1], session_id=result[0])
+        return render_template("profile.html", username=result[0], session_id=session_id)
     else:
         return redirect("/login")
 
