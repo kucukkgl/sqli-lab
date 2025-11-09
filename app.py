@@ -57,7 +57,8 @@ def login():
             cursor.execute(query)
             result = cursor.fetchone()
         except Exception as e:
-            log_error(str(e), query)
+            log_error("SQL execution failed", query)
+            log_error("SQLite error details", str(e))
             result = None
 
         if result:
