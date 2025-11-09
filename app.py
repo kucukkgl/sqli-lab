@@ -23,6 +23,10 @@ def log_error(error, query=None):
     with open("error.log", "a") as f:
         f.write(log_line)
 
+def log_query_result(context, result):
+    with open("app.log", "a") as f:
+        f.write(f"[RESULT] {context}: {result}\n")
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -56,6 +60,8 @@ def login():
         try:
             cursor.execute(query)
             result = cursor.fetchone()
+            log_query_result("Login query result", result)
+
         except Exception as e:
             log_error("SQL execution failed", query)
             log_error("SQLite error details", str(e))
