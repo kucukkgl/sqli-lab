@@ -42,6 +42,8 @@ def search():
         cursor.execute(query)
         rows = cursor.fetchall()
         result = '<br>'.join(str(row) for row in rows)
+        log_query_result("Search query result", result)
+
     except Exception as e:
         result = f"Error: {e}"
     conn.close()
