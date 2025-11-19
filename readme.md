@@ -1,20 +1,32 @@
-# SQL Injection Lab (Flask + SQLite)
 
-## Setup
 
-1. Run `init_db.py` to create `users.db`
-2. Start the app: `python app.py`
-3. Visit `http://<target-vm-ip>:5000/` from Burp Suite VM
+1. **Clone the lab repository**  
+   ```bash
+   git clone https://github.com/kucukkgl/sqli-lab.git
+   cd sqli-lab
+   ```
 
-## Targets
+2. **Create and activate a virtual environment**  
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   ```
 
-- `/search?user=` → GET-based SQLi
-- `/login` → POST-based SQLi
-- `/profile` → Cookie-based SQLi (`session_id`)
-- `logs.txt` → Forensic trace of all queries
+3. **Install dependencies**  
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-## Challenge
+4. **Initialize the database**  
+   ```bash
+   python3 initialize_db.py
+   ```
 
-Extract the flag from the hidden `flags` table:
-```sql
-' UNION SELECT null, flag, null FROM flags--
+5. **Run the app**  
+   ```bash
+   python3 app.py
+   ```
+
+6. **Visit the login page**  
+   - Open a browser inside the same VM.  
+   - Navigate to: [http://localhost:5000/login](http://localhost:5000/login)
