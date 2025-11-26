@@ -45,6 +45,7 @@ def search():
         log_query_result("Search query result", result)
 
     except Exception as e:
+        log_error("SQLite error details", str(e))
         result = f"Error: {e}"
     conn.close()
     return f"<h3>Results:</h3><p>{result}</p>"
